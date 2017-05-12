@@ -13,22 +13,48 @@ import Utils from './utils'
 let uid = 0
 const emptyObj = () => ({})
 
+const mediaKey = '@media(min-width: 415px)'
+
 const defaultProps = {
   stories: [],
   default: () => <span>No story component found!</span>,
   Wrapper: glamorous.div({
     display: 'flex',
-    boxSizing: 'border-box'
+    height: '100%',
+    flexDirection: 'column',
+    boxSizing: 'border-box',
+    [mediaKey]: {
+      flexDirection: 'row'
+    }
   }),
   Sidebar: glamorous.div({
-    flexBasis: '250px',
     background: 'rgba(0,0,0, 0.05)',
-    borderRight: '3px solid rgba(0,0,0, 0.3)'
+    borderRight: '3px solid rgba(0,0,0, 0.3)',
+    [mediaKey]: {
+      flex: '0 0 250px'
+    }
+  }),
+  MobileSidebarHeader: glamorous.div({
+    display: 'block',
+    fontWeight: 'bold',
+    padding: '10px',
+    fontSize: '18px',
+    textDecoration: 'none',
+    color: 'rgba(0, 0, 0, 0.8)',
+    cursor: 'pointer',
+    [mediaKey]: {
+      display: 'none'
+    }
   }),
   SidebarList: glamorous.ul({
     padding: 0,
-    margin: 0
-  }),
+    margin: 0,
+    [mediaKey]: {
+      display: 'block'
+    }
+  }, (props) => ({
+    display: props.open ? 'block' : 'none'
+  })),
   SidebarListItem: glamorous.li({
     padding: 0,
     margin: 0
@@ -36,7 +62,7 @@ const defaultProps = {
   SidebarListItemLink: glamorous(
     ({active, ...rest}) =>
       <Link {...rest} />
-    )({
+  )({
       display: 'block',
       padding: '10px',
       fontSize: '18px',
@@ -48,9 +74,10 @@ const defaultProps = {
     })
   ),
   StoryWrapper: glamorous.div({
-    flexBasis: 'auto',
-    flexGrow: '3',
-    padding: '10px 20px'
+    padding: '10px 20px',
+    [mediaKey]: {
+      flex: 1
+    }
   }),
   getWrapperProps: emptyObj,
   getSidebarProps: emptyObj,
@@ -62,16 +89,21 @@ const defaultProps = {
 
 export default class ReactStory extends React.Component {
   static defaultProps = defaultProps
+
   constructor () {
     super()
     this.state = {
-      stories: []
+      stories: [],
+      menuOpen: false
     }
     this.rebuild = this.rebuild.bind(this)
+    this.toggleMenu = this.toggleMenu.bind(this)
   }
+
   componentWillMount () {
     this.rebuild()
   }
+
   componentWillReceiveProps (newProps) {
     const oldProps = this.props
 
@@ -79,6 +111,7 @@ export default class ReactStory extends React.Component {
       this.rebuild()
     }
   }
+
   rebuild (props = this.props) {
     const {
       defaultComponent
@@ -98,11 +131,19 @@ export default class ReactStory extends React.Component {
       stories
     })
   }
+
+  toggleMenu () {
+    this.setState({
+      menuOpen: !this.state.menuOpen
+    })
+  }
+
   render () {
     const {
       // Components
       Wrapper,
       Sidebar,
+      MobileSidebarHeader,
       StoryWrapper,
       SidebarList,
       SidebarListItem,
@@ -128,7 +169,22 @@ export default class ReactStory extends React.Component {
           <Sidebar
             {...getSidebarProps()}
           >
+            <MobileSidebarHeader>
+              <Switch>
+                {stories.map(story => (
+                  <Route
+                    key={story.path}
+                    exact
+                    path={'/' + story.path}
+                    render={routeProps => (
+                      <div onClick={this.toggleMenu}>&#9776; {story.name}</div>
+                    )}
+                  />
+                ))}
+              </Switch>
+            </MobileSidebarHeader>
             <SidebarList
+              open={this.state.menuOpen}
               {...getSidebarListProps()}
             >
               {stories.map(story => (
@@ -139,7 +195,7 @@ export default class ReactStory extends React.Component {
                   <Route
                     path={'/' + story.path}
                     exact
-                    children={({ match }) => (
+                    children={({match}) => (
                       <SidebarListItemLink
                         to={story.path}
                         active={!!match}

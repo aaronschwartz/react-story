@@ -14,24 +14,26 @@ import Story3, { knobs as Story3Knobs } from './stories/Story3'
 export default class App extends React.Component {
   render () {
     return (
-      <ReactStory
-        stories={[{
-          name: 'Story 1',
-          component: Story1,
-          knobs: Story1Knobs,
-          // source: Story1Source
-        }, {
-          name: 'Story 2',
-          component: Story2,
-          knobs: Story2Knobs,
-          // source: Story2Source
-        }, {
-          name: 'Story 3',
-          component: Story3,
-          knobs: Story3Knobs,
-          // source: Story3Source
-        }]}
-      />
+      <div style={{height: '100vh'}}>
+        <ReactStory
+          stories={[{
+            name: 'Story 1',
+            component: Story1,
+            knobs: Story1Knobs,
+            // source: Story1Source
+          }, {
+            name: 'Story 2',
+            component: Story2,
+            knobs: Story2Knobs,
+            // source: Story2Source
+          }, {
+            name: 'Story 3',
+            component: Story3,
+            knobs: Story3Knobs,
+            // source: Story3Source
+          }]}
+        />
+      </div>
     )
   }
 }
