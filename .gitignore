@@ -1,0 +1,6 @@
+node_modules/
+lib/
+react-story.js
+*.log
+.idea
+.DS_Store
