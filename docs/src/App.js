@@ -1,6 +1,15 @@
 import React from 'react'
 //
 import ReactStory from '../../lib'
+//
+import Story1, { knobs as Story1Knobs } from './stories/Story1'
+// import Story1Source from 'raw-loader!./stories/Story1'
+
+import Story2, { knobs as Story2Knobs } from './stories/Story2'
+// import Story2Source from 'raw-loader!./stories/Story2'
+
+import Story3, { knobs as Story3Knobs } from './stories/Story3'
+// import Story3Source from 'raw-loader!./stories/Story3'
 
 export default class App extends React.Component {
   render () {
@@ -8,31 +17,19 @@ export default class App extends React.Component {
       <ReactStory
         stories={[{
           name: 'Story 1',
-          component: props => (
-            <div>
-              This is my first react-story!
-              <br />
-              <pre><code>{JSON.stringify(props, null, 2)}</code></pre>
-            </div>
-          )
+          component: Story1,
+          knobs: Story1Knobs,
+          // source: Story1Source
         }, {
           name: 'Story 2',
-          component: props => (
-            <div>
-              Hey! This is my second react-story!
-              <br />
-              <pre><code>{JSON.stringify(props, null, 2)}</code></pre>
-            </div>
-          )
+          component: Story2,
+          knobs: Story2Knobs,
+          // source: Story2Source
         }, {
           name: 'Story 3',
-          component: props => (
-            <div>
-              This is another one!
-              <br />
-              <pre><code>{JSON.stringify(props, null, 2)}</code></pre>
-            </div>
-          )
+          component: Story3,
+          knobs: Story3Knobs,
+          // source: Story3Source
         }]}
       />
     )

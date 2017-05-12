@@ -11,21 +11,53 @@ import glamorous from 'glamorous'
 import Utils from './utils'
 
 let uid = 0
+const emptyObj = () => ({})
 
 const defaultProps = {
   stories: [],
-  defaultComponent: () => <span>No story component found!</span>,
-  WrapperComponent: glamorous.div({
-    display: 'flex'
+  default: () => <span>No story component found!</span>,
+  Wrapper: glamorous.div({
+    display: 'flex',
+    boxSizing: 'border-box'
   }),
-  SidebarComponent: glamorous.div({
-    flexBasis: '100px',
-    flexGrow: '1'
+  Sidebar: glamorous.div({
+    flexBasis: '250px',
+    background: 'rgba(0,0,0, 0.05)',
+    borderRight: '3px solid rgba(0,0,0, 0.3)'
   }),
-  StoryWrapperComponent: glamorous.div({
+  SidebarList: glamorous.ul({
+    padding: 0,
+    margin: 0
+  }),
+  SidebarListItem: glamorous.li({
+    padding: 0,
+    margin: 0
+  }),
+  SidebarListItemLink: glamorous(
+    ({active, ...rest}) =>
+      <Link {...rest} />
+    )({
+      display: 'block',
+      padding: '10px',
+      fontSize: '18px',
+      textDecoration: 'none',
+      color: 'rgba(0, 0, 0, 0.8)',
+      borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
+    }, ({active}) => ({
+      fontWeight: active && 'bold'
+    })
+  ),
+  StoryWrapper: glamorous.div({
     flexBasis: 'auto',
-    flexGrow: '3'
-  })
+    flexGrow: '3',
+    padding: '10px 20px'
+  }),
+  getWrapperProps: emptyObj,
+  getSidebarProps: emptyObj,
+  getStoryWrapperProps: emptyObj,
+  getSidebarListProps: emptyObj,
+  getSidebarListItemProps: emptyObj,
+  getSidebarListItemLinkProps: emptyObj
 }
 
 export default class ReactStory extends React.Component {
@@ -68,44 +100,72 @@ export default class ReactStory extends React.Component {
   }
   render () {
     const {
-      WrapperComponent,
-      SidebarComponent,
-      StoryWrapperComponent
+      // Components
+      Wrapper,
+      Sidebar,
+      StoryWrapper,
+      SidebarList,
+      SidebarListItem,
+      SidebarListItemLink,
+      // Prop getters
+      getWrapperProps,
+      getSidebarProps,
+      getSidebarListProps,
+      getSidebarListItemProps,
+      getSidebarListItemLinkProps,
+      getStoryWrapperProps
     } = this.props
 
     const {
       stories
     } = this.state
 
-    console.log(stories)
-
     return (
       <Router>
-        <WrapperComponent>
-          <SidebarComponent>
-            <ul>
+        <Wrapper
+          {...getWrapperProps()}
+        >
+          <Sidebar
+            {...getSidebarProps()}
+          >
+            <SidebarList
+              {...getSidebarListProps()}
+            >
               {stories.map(story => (
-                <li
+                <SidebarListItem
                   key={story.path}
+                  {...getSidebarListItemProps()}
                 >
-                  <Link to={story.path}>
-                    {story.name}
-                  </Link>
-                </li>
+                  <Route
+                    path={'/' + story.path}
+                    exact
+                    children={({ match }) => (
+                      <SidebarListItemLink
+                        to={story.path}
+                        active={!!match}
+                        {...getSidebarListItemLinkProps()}
+                      >
+                        {story.name}
+                      </SidebarListItemLink>
+                    )}
+                  />
+                </SidebarListItem>
               ))}
-            </ul>
-          </SidebarComponent>
-          <StoryWrapperComponent>
+            </SidebarList>
+          </Sidebar>
+          <StoryWrapper
+            {...getStoryWrapperProps()}
+          >
             <Switch>
               {stories.map(story => (
                 <Route
                   key={story.path}
                   exact
                   path={'/' + story.path}
-                  render={props => (
+                  render={routeProps => (
                     <story.component
                       story={story}
-                      {...props}
+                      route={routeProps}
                     />
                   )}
                 />
@@ -114,8 +174,8 @@ export default class ReactStory extends React.Component {
                 to={stories[0].path}
               />
             </Switch>
-          </StoryWrapperComponent>
-        </WrapperComponent>
+          </StoryWrapper>
+        </Wrapper>
       </Router>
     )
   }
